@@ -1,12 +1,15 @@
-package cmd
+package main
 
 import (
 	"edge-storage-scheduler/conf"
 	"edge-storage-scheduler/internal/globals"
+	"edge-storage-scheduler/internal/handler"
+	"edge-storage-scheduler/internal/utils/redis"
 	"fmt"
 	"github.com/prometheus/client_golang/api"
 	"github.com/spf13/viper"
 	"k8s.io/klog/v2"
+	"net/http"
 	"os"
 	"strings"
 )
@@ -35,6 +38,14 @@ func loadPrometheusConfig(v *viper.Viper) *conf.PrometheusConf {
 	return &prometheusConf
 }
 
+func loadRedisConfig(v *viper.Viper) *conf.RedisConf {
+	redisConf := conf.RedisConf{}
+	if err := v.UnmarshalKey("redis", &redisConf); err != nil {
+		klog.Fatal("load redis config error", err)
+	}
+	return &redisConf
+}
+
 func init() {
 	commonViper := initViper("./conf", "common_config.yaml")
 	//初始化prometheus客户端
@@ -49,8 +60,24 @@ func init() {
 	}
 	globals.PrometheusClient = &client
 
+	//初始化redis客户端
+	redisConf := loadRedisConfig(commonViper)
+	redisClient := redis.NewRedisCache(redis.RedisOption{
+		Address:  redisConf.Address,
+		Password: redisConf.Password,
+	})
+	globals.RedisClient = redisClient
 }
 
 func main() {
 
+	http.HandleFunc("/", handler.DefaultHandler)
+	http.HandleFunc("/health", handler.HealthHandler)
+	http.HandleFunc("/sorted/edgeset", handler.EdgeSetHandler)
+	http.HandleFunc("/sorted/edgenode", handler.EdgeNodeHandler)
+
+	err := http.ListenAndServe(":38000", nil)
+	if err != nil {
+		klog.Fatal("ListenAndServe:", err)
+	}
 }
