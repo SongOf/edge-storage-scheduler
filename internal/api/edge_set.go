@@ -5,6 +5,7 @@ import (
 	"edge-storage-scheduler/internal/contains"
 	"edge-storage-scheduler/internal/globals"
 	"edge-storage-scheduler/internal/timer"
+	"github.com/go-redis/redis/v8"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
 	"k8s.io/klog/v2"
@@ -118,7 +119,11 @@ func (es *EdgeSet) Run() {
 	ctx, cacel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cacel()
 	for key, value := range es.SetScore {
-		globals.RedisClient.GetClient().ZIncrBy(ctx, contains.EDGE_SET_REDIS_KEY, value, key)
+		//globals.RedisClient.GetClient().ZIncrBy(ctx, contains.EDGE_SET_REDIS_KEY, value, key)
+		globals.RedisClient.GetClient().ZAdd(ctx, contains.EDGE_SET_REDIS_KEY, &redis.Z{
+			Score:  value,
+			Member: key,
+		})
 	}
 }
 

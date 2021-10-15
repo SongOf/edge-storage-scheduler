@@ -2,7 +2,10 @@ package api
 
 import (
 	"context"
+	"edge-storage-scheduler/internal/contains"
 	"edge-storage-scheduler/internal/globals"
+	"fmt"
+	"github.com/go-redis/redis/v8"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
 	"k8s.io/klog/v2"
@@ -15,6 +18,7 @@ var TIMEOUT = 10 * time.Second
 
 type EdgeNode struct {
 	EdgeSetName string
+	JobName     string
 	//cpu idle状态的百分比
 	NodeCpuIdle model.Vector
 	//cpu system状态的百分比
@@ -59,6 +63,7 @@ type EdgeNode struct {
 func NewEdgeNode(edgeSetName string) *EdgeNode {
 	return &EdgeNode{
 		EdgeSetName: edgeSetName,
+		JobName:     edgeSetName + contains.EDGE_NODE_JOB_NAME_SUB_TAIL,
 		NodeOnline:  make(map[string]void),
 		NodeScore:   make(map[string]float64),
 	}
@@ -212,7 +217,11 @@ func (en *EdgeNode) Run() {
 	ctx, cacel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cacel()
 	for key, value := range en.NodeScore {
-		globals.RedisClient.GetClient().ZIncrBy(ctx, en.EdgeSetName, value, key)
+		//globals.RedisClient.GetClient().ZIncrBy(ctx, en.EdgeSetName, value, key)
+		globals.RedisClient.GetClient().ZAdd(ctx, en.EdgeSetName, &redis.Z{
+			Score:  value,
+			Member: key,
+		})
 	}
 }
 
@@ -220,7 +229,8 @@ func (en *EdgeNode) RefreshNodeCpuIdleInfo() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "(sum(increase(node_cpu_seconds_total{mode='idle',job=\"edge-node\"}[1m]))by(instance)) / (sum(increase(node_cpu_seconds_total{job=\"edge-node\"}[1m]))by(instance)) * 100", time.Now())
+	queryStr := fmt.Sprintf("(sum(increase(node_cpu_seconds_total{mode='idle',job='%s'}[1m]))by(instance)) / (sum(increase(node_cpu_seconds_total{job='%s'}[1m]))by(instance)) * 100", en.JobName, en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -241,7 +251,8 @@ func (en *EdgeNode) RefreshNodeCpuSystemInfo() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "(sum(increase(node_cpu_seconds_total{mode='system',job=\"edge-node\"}[1m]))by(instance)) / (sum(increase(node_cpu_seconds_total{job=\"edge-node\"}[1m]))by(instance))  *100", time.Now())
+	queryStr := fmt.Sprintf("(sum(increase(node_cpu_seconds_total{mode='system',job='%s'}[1m]))by(instance)) / (sum(increase(node_cpu_seconds_total{job='%s'}[1m]))by(instance))  *100", en.JobName, en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -262,7 +273,8 @@ func (en *EdgeNode) RefreshNodeCpuUserInfo() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "(sum(increase(node_cpu_seconds_total{mode='user',job=\"edge-node\"}[1m]))by(instance)) / (sum(increase(node_cpu_seconds_total{job=\"edge-node\"}[1m]))by(instance))  *100", time.Now())
+	queryStr := fmt.Sprintf("(sum(increase(node_cpu_seconds_total{mode='user',job='%s'}[1m]))by(instance)) / (sum(increase(node_cpu_seconds_total{job='%s'}[1m]))by(instance))  *100", en.JobName, en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -283,7 +295,8 @@ func (en *EdgeNode) RefreshNodeLoad1Info() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "node_load1{job=\"edge-node\"}", time.Now())
+	queryStr := fmt.Sprintf("node_load1{job='%s'}", en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -304,7 +317,8 @@ func (en *EdgeNode) RefreshNodeLoad5Info() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "node_load5{job=\"edge-node\"}", time.Now())
+	queryStr := fmt.Sprintf("node_load5{job='%s'}", en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -325,7 +339,8 @@ func (en *EdgeNode) RefreshNodeLoad15Info() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "node_load15{job=\"edge-node\"}", time.Now())
+	queryStr := fmt.Sprintf("node_load15{job='%s'}", en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -346,7 +361,8 @@ func (en *EdgeNode) RefreshNodeMemoryAvailable() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "avg_over_time(node_memory_MemAvailable_bytes{job=\"edge-node\"}[1m]) / 1024 / 1024", time.Now())
+	queryStr := fmt.Sprintf("avg_over_time(node_memory_MemAvailable_bytes{job='%s'}[1m]) / 1024 / 1024", en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -367,7 +383,8 @@ func (en *EdgeNode) RefreshNodeMemoryTotal() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "avg_over_time(node_memory_MemTotal_bytes{job=\"edge-node\"}[1m]) / 1024 / 1024", time.Now())
+	queryStr := fmt.Sprintf("avg_over_time(node_memory_MemTotal_bytes{job='%s'}[1m]) / 1024 / 1024", en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -388,7 +405,8 @@ func (en *EdgeNode) RefreshNodeFileSystemSize() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "avg_over_time(node_filesystem_size_bytes{mountpoint=\"/\", job=\"edge-node\"}[1m]) / 1024 / 1024", time.Now())
+	queryStr := fmt.Sprintf("avg_over_time(node_filesystem_size_bytes{mountpoint=\"/\", job='%s'}[1m]) / 1024 / 1024", en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -409,7 +427,8 @@ func (en *EdgeNode) RefreshNodeFileSystemAvail() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "avg_over_time(node_filesystem_avail_bytes{mountpoint=\"/\", job=\"edge-node\"}[1m]) / 1024 / 1024", time.Now())
+	queryStr := fmt.Sprintf("avg_over_time(node_filesystem_avail_bytes{mountpoint=\"/\", job='%s'}[1m]) / 1024 / 1024", en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -430,7 +449,8 @@ func (en *EdgeNode) RefreshNodeNetworkTransmitTotal() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "avg(irate(node_network_transmit_bytes_total{device=\"eth0\", job=\"edge-node\"}[1m]) / 1024) by (instance)", time.Now())
+	queryStr := fmt.Sprintf("avg(irate(node_network_transmit_bytes_total{device=\"eth0\", job='%s'}[1m]) / 1024) by (instance)", en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -451,7 +471,8 @@ func (en *EdgeNode) RefreshNodeNetworkReceiveTotal() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "avg(irate(node_network_receive_bytes_total{device=\"eth0\", job=\"edge-node\"}[1m]) / 1024) by (instance)", time.Now())
+	queryStr := fmt.Sprintf("avg(irate(node_network_receive_bytes_total{device=\"eth0\", job='%s'}[1m]) / 1024) by (instance)", en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -472,7 +493,8 @@ func (en *EdgeNode) RefreshNodeMemoryBuffer() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "avg_over_time(node_memory_Buffers_bytes{job=\"edge-node\"}[1m]) / 1024 / 1024", time.Now())
+	queryStr := fmt.Sprintf("avg_over_time(node_memory_Buffers_bytes{job='%s'}[1m]) / 1024 / 1024", en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -493,7 +515,8 @@ func (en *EdgeNode) RefreshNodeMemoryCached() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "avg_over_time(node_memory_Cached_bytes{job=\"edge-node\"}[1m]) / 1024 / 1024 + avg_over_time(node_memory_Slab_bytes{job=\"edge-node\"}[1m]) / 1024 / 1024", time.Now())
+	queryStr := fmt.Sprintf("avg_over_time(node_memory_Cached_bytes{job='%s'}[1m]) / 1024 / 1024 + avg_over_time(node_memory_Slab_bytes{job='%s'}[1m]) / 1024 / 1024", en.JobName, en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -514,7 +537,8 @@ func (en *EdgeNode) RefreshNodeMemorySwapFree() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "avg_over_time(node_memory_SwapFree_bytes{job=\"edge-node\"}[1m]) / 1024 / 1024", time.Now())
+	queryStr := fmt.Sprintf("avg_over_time(node_memory_SwapFree_bytes{job='%s'}[1m]) / 1024 / 1024", en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -535,7 +559,8 @@ func (en *EdgeNode) RefreshNodeMemorySwapTotal() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "avg_over_time(node_memory_SwapTotal_bytes{job=\"edge-node\"}[1m]) / 1024 / 1024", time.Now())
+	queryStr := fmt.Sprintf("avg_over_time(node_memory_SwapTotal_bytes{job='%s'}[1m]) / 1024 / 1024", en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -556,7 +581,8 @@ func (en *EdgeNode) RefreshNodeDiskIORead() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "sum(irate(node_disk_reads_completed_total{job=\"edge-node\"}[5m])) by (instance)", time.Now())
+	queryStr := fmt.Sprintf("sum(irate(node_disk_reads_completed_total{job='%s'}[5m])) by (instance)", en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
@@ -577,7 +603,8 @@ func (en *EdgeNode) RefreshNodeDiskIOWrite() error {
 	v1api := v1.NewAPI(*globals.PrometheusClient)
 	ctx, cancel := context.WithTimeout(context.Background(), TIMEOUT)
 	defer cancel()
-	result, warnings, err := v1api.Query(ctx, "sum(irate(node_disk_writes_completed_total{job=\"edge-node\"}[5m])) by (instance)", time.Now())
+	queryStr := fmt.Sprintf("sum(irate(node_disk_writes_completed_total{job='%s'}[5m])) by (instance)", en.JobName)
+	result, warnings, err := v1api.Query(ctx, queryStr, time.Now())
 	if err != nil {
 		klog.Error("Error querying Prometheus: %v\n", err)
 		return err
