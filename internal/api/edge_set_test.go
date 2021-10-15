@@ -53,4 +53,8 @@ func TestEdgeSet_RefreshSet(t *testing.T) {
 	fmt.Println(edgeSet.SetDiskOfflineTotal.String())
 	fmt.Println(edgeSet.SetDiskFree.String())
 	fmt.Println(edgeSet.SetDiskTotal.String())
+
+	for _, set := range edgeSet.SetDiskOnlineTotal {
+		fmt.Println(set.Metric)
+	}
 }

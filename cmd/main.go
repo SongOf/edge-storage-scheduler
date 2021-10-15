@@ -2,16 +2,19 @@ package main
 
 import (
 	"edge-storage-scheduler/conf"
+	api2 "edge-storage-scheduler/internal/api"
 	"edge-storage-scheduler/internal/globals"
-	"edge-storage-scheduler/internal/handler"
+	"edge-storage-scheduler/internal/model"
+	"edge-storage-scheduler/internal/timer"
 	"edge-storage-scheduler/internal/utils/redis"
 	"fmt"
 	"github.com/prometheus/client_golang/api"
 	"github.com/spf13/viper"
 	"k8s.io/klog/v2"
-	"net/http"
 	"os"
 	"strings"
+	"sync"
+	"time"
 )
 
 func initViper(confFilePath, configFileFullName string) *viper.Viper {
@@ -70,14 +73,23 @@ func init() {
 }
 
 func main() {
+	//初始化在线就删集
+	model.NewEdgeSetOnline()
 
-	http.HandleFunc("/", handler.DefaultHandler)
-	http.HandleFunc("/health", handler.HealthHandler)
-	http.HandleFunc("/sorted/edgeset", handler.EdgeSetHandler)
-	http.HandleFunc("/sorted/edgenode", handler.EdgeNodeHandler)
-
-	err := http.ListenAndServe(":38000", nil)
-	if err != nil {
-		klog.Fatal("ListenAndServe:", err)
+	scanCycle := 60 * 1 * time.Second
+	edgeSet := api2.NewEdgeSet()
+	edgeSetTimer := timer.Timer{
+		Function: edgeSet.Run,
+		Duration: scanCycle,
+		Times:    0,
+		Shutdown: make(chan string),
 	}
+	defer edgeSetTimer.Terminated()
+	go func() {
+		edgeSetTimer.Start()
+	}()
+
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	wg.Wait()
 }

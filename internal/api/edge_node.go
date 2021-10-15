@@ -7,12 +7,14 @@ import (
 	"github.com/prometheus/common/model"
 	"k8s.io/klog/v2"
 	"runtime"
+	"sync"
 	"time"
 )
 
 var TIMEOUT = 10 * time.Second
 
 type EdgeNode struct {
+	EdgeSetName string
 	//cpu idle状态的百分比
 	NodeCpuIdle model.Vector
 	//cpu system状态的百分比
@@ -49,10 +51,169 @@ type EdgeNode struct {
 	NodeNetworkTransmitTotal model.Vector
 	//device="eth0" 以太网接口的下载速率 1m内的速率 单位KB/s
 	NodeNetworkReceiveTotal model.Vector
+
+	NodeOnline map[string]void
+	NodeScore  map[string]float64
 }
 
-func NewEdgeNode() *EdgeNode {
-	return new(EdgeNode)
+func NewEdgeNode(edgeSetName string) *EdgeNode {
+	return &EdgeNode{
+		EdgeSetName: edgeSetName,
+		NodeOnline:  make(map[string]void),
+		NodeScore:   make(map[string]float64),
+	}
+}
+
+func (en *EdgeNode) Run() {
+	//刷新数据
+	wg := sync.WaitGroup{}
+	wg.Add(18)
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeCpuIdleInfo()
+		if err != nil {
+			klog.Error("RefreshNodeCpuIdleInfo fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeCpuSystemInfo()
+		if err != nil {
+			klog.Error("RefreshNodeCpuSystemInfo fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeCpuUserInfo()
+		if err != nil {
+			klog.Error("RefreshNodeCpuUserInfo fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeLoad1Info()
+		if err != nil {
+			klog.Error("RefreshNodeLoad1Info fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeLoad5Info()
+		if err != nil {
+			klog.Error("RefreshNodeLoad5Info fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeLoad15Info()
+		if err != nil {
+			klog.Error("RefreshNodeLoad15Info fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeMemoryAvailable()
+		if err != nil {
+			klog.Error("RefreshNodeMemoryAvailable fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeMemoryTotal()
+		if err != nil {
+			klog.Error("RefreshNodeMemoryTotal fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeFileSystemAvail()
+		if err != nil {
+			klog.Error("RefreshNodeFileSystemAvail fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeFileSystemSize()
+		if err != nil {
+			klog.Error("RefreshNodeFileSystemSize fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeNetworkTransmitTotal()
+		if err != nil {
+			klog.Error("RefreshNodeNetworkTransmitTotal fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeNetworkReceiveTotal()
+		if err != nil {
+			klog.Error("RefreshNodeNetworkReceiveTotal fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeMemoryBuffer()
+		if err != nil {
+			klog.Error("RefreshNodeMemoryBuffer fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeMemoryCached()
+		if err != nil {
+			klog.Error("RefreshNodeMemoryCached fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeMemorySwapFree()
+		if err != nil {
+			klog.Error("RefreshNodeMemorySwapFree fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeMemorySwapTotal()
+		if err != nil {
+			klog.Error("RefreshNodeMemorySwapTotal fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeDiskIORead()
+		if err != nil {
+			klog.Error("RefreshNodeDiskIORead fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := en.RefreshNodeDiskIOWrite()
+		if err != nil {
+			klog.Error("RefreshNodeDiskIOWrite fail", err)
+		}
+	}()
+	wg.Wait()
+
+	//解析在线节点
+	for _, node := range en.NodeCpuIdle {
+		nodeName := node.Metric.String()
+		_, exists := en.NodeOnline[nodeName]
+		if !exists {
+			//新增节点
+			en.NodeOnline[nodeName] = member
+		}
+	}
+
+	//边缘节点打分
+	EdgeNodeScheduler(en)
+	//同步到redis zset
+	ctx, cacel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cacel()
+	for key, value := range en.NodeScore {
+		globals.RedisClient.GetClient().ZIncrBy(ctx, en.EdgeSetName, value, key)
+	}
 }
 
 func (en *EdgeNode) RefreshNodeCpuIdleInfo() error {

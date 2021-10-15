@@ -16,7 +16,7 @@ func TestEdgeNode_LoadEdgeNodeInfo(t *testing.T) {
 		fmt.Println(err)
 	}
 	globals.PrometheusClient = &client
-	edgeNode := NewEdgeNode()
+	edgeNode := NewEdgeNode("edge-storage-set-01")
 	wg := sync.WaitGroup{}
 	wg.Add(18)
 	go func() {

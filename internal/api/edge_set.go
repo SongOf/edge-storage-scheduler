@@ -2,23 +2,124 @@ package api
 
 import (
 	"context"
+	"edge-storage-scheduler/internal/contains"
 	"edge-storage-scheduler/internal/globals"
+	"edge-storage-scheduler/internal/timer"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
 	"k8s.io/klog/v2"
 	"runtime"
+	"sync"
 	"time"
 )
 
+type void struct{}
+
+var member void
+
+//func Set(set string) {
+//	EdgeSetOnline[set] = member
+//}
+//func Delete(set string) {
+//	delete(EdgeSetOnline, set)
+//}
+//func Size() int {
+//	return len(EdgeSetOnline)
+//}
+//func Exists(set string) bool {
+//	_, exists := EdgeSetOnline[set]
+//	return exists
+//}
 type EdgeSet struct {
 	SetDiskOnlineTotal  model.Vector
 	SetDiskOfflineTotal model.Vector
 	SetDiskFree         model.Vector
 	SetDiskTotal        model.Vector
+
+	SetOnline      map[string]void
+	SetScore       map[string]float64
+	EdgeNodesOfSet map[string]*EdgeNode
 }
 
 func NewEdgeSet() *EdgeSet {
-	return new(EdgeSet)
+	return &EdgeSet{
+		SetOnline:      make(map[string]void),
+		SetScore:       make(map[string]float64),
+		EdgeNodesOfSet: make(map[string]*EdgeNode),
+	}
+}
+
+//v := result.(model.Vector)
+//
+//for _,s := range v {
+//	fmt.Println(s.Metric)
+//	fmt.Println(s.Value)
+//	fmt.Println(s.Timestamp)
+//}
+
+func (es *EdgeSet) Run() {
+	//刷新数据
+	wg := sync.WaitGroup{}
+	wg.Add(4)
+	go func() {
+		defer wg.Done()
+		err := es.RefreshSetDiskOnlineTotal()
+		if err != nil {
+			klog.Error("RefreshSetDiskOnlineTotal fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := es.RefreshSetDiskOfflineTotal()
+		if err != nil {
+			klog.Error("RefreshSetDiskOfflineTotal fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := es.RefreshSetDiskFree()
+		if err != nil {
+			klog.Error("RefreshSetDiskFree fail", err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		err := es.RefreshSetDiskTotal()
+		if err != nil {
+			klog.Error("RefreshSetDiskTotal fail", err)
+		}
+	}()
+	wg.Wait()
+
+	//解析在线纠删集
+	for _, set := range es.SetDiskOnlineTotal {
+		setName := set.Metric.String()
+		_, exists := es.SetOnline[setName]
+		if !exists {
+			//新增纠删集
+			//为每个纠删集添加一个定时任务
+			es.SetOnline[setName] = member
+			go func() {
+				es.EdgeNodesOfSet[setName] = NewEdgeNode(setName)
+				edgeNodeTimer := timer.Timer{
+					Function: es.EdgeNodesOfSet[setName].Run,
+					Duration: 60 * 1 * time.Second,
+					Times:    0,
+					Shutdown: make(chan string),
+				}
+				edgeNodeTimer.Start()
+			}()
+		}
+	}
+
+	//纠删集打分
+	EdgeSetScheduler(es)
+	//同步到redis zset
+	ctx, cacel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cacel()
+	for key, value := range es.SetScore {
+		globals.RedisClient.GetClient().ZIncrBy(ctx, contains.EDGE_SET_REDIS_KEY, value, key)
+	}
 }
 
 func (es *EdgeSet) RefreshSetDiskOnlineTotal() error {
