@@ -218,10 +218,13 @@ func (en *EdgeNode) Run() {
 	defer cacel()
 	for key, value := range en.NodeScore {
 		//globals.RedisClient.GetClient().ZIncrBy(ctx, en.EdgeSetName, value, key)
-		globals.RedisClient.GetClient().ZAdd(ctx, en.EdgeSetName, &redis.Z{
+		err := globals.RedisClient.GetClient().ZAdd(ctx, en.EdgeSetName, &redis.Z{
 			Score:  value,
 			Member: key,
 		})
+		if err != nil {
+			klog.Error("redis zset operation fail", err)
+		}
 	}
 }
 

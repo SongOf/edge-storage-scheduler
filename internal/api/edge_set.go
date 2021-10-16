@@ -120,10 +120,13 @@ func (es *EdgeSet) Run() {
 	defer cacel()
 	for key, value := range es.SetScore {
 		//globals.RedisClient.GetClient().ZIncrBy(ctx, contains.EDGE_SET_REDIS_KEY, value, key)
-		globals.RedisClient.GetClient().ZAdd(ctx, contains.EDGE_SET_REDIS_KEY, &redis.Z{
+		err := globals.RedisClient.GetClient().ZAdd(ctx, contains.EDGE_SET_REDIS_KEY, &redis.Z{
 			Score:  value,
 			Member: key,
 		})
+		if err != nil {
+			klog.Error("redis zset operation fail", err)
+		}
 	}
 }
 
