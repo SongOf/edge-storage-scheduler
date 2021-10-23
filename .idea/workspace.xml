@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2aabb550-096c-41ea-8136-d53cf7c39a6c" name="Default Changelist" comment="feat(api): add err">
+      <change afterPath="$PROJECT_DIR$/.idea/edge-storage-scheduler.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README-edgenode.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README-hstreamdb.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README-juicefs.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/cmd/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/conf/common_config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/conf/common_config.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/conf/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/conf/config.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/api/edge_node.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/api/edge_node.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/api/edge_set.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/api/edge_set.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/utils/redis/redis.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/utils/redis/redis.go" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" path="/usr/local/go" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GoLibraries">
+    <option name="indexEntireGoPath" value="false" />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="ooplzmuc" />
+  </component>
+  <component name="ProjectId" id="1zRWv17RiRzrq3atufX7H2uiXCF" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DefaultGoTemplateProperty" value="Go File" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="go.vgo" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/internal/api" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Go Build.go build edge-storage-scheduler/cmd">
+    <configuration name="go build edge-storage-scheduler/cmd" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="edge-storage-scheduler" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="PACKAGE" />
+      <filePath value="$PROJECT_DIR$/cmd/main.go" />
+      <package value="edge-storage-scheduler/cmd" />
+      <directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestEdgeNode_LoadEdgeNodeInfo in edge-storage-scheduler/internal/api" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="edge-storage-scheduler" />
+      <working_directory value="$PROJECT_DIR$/internal/api" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="edge-storage-scheduler/internal/api" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <pattern value="^\QTestEdgeNode_LoadEdgeNodeInfo\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestEdgeSet_RefreshSet in edge-storage-scheduler/internal/api" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="edge-storage-scheduler" />
+      <working_directory value="$PROJECT_DIR$/internal/api" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="edge-storage-scheduler/internal/api" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <pattern value="^\QTestEdgeSet_RefreshSet\E$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="TestSortedSet in edge-storage-scheduler/internal/sorted_set" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="edge-storage-scheduler" />
+      <working_directory value="$PROJECT_DIR$/internal/sorted_set" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="edge-storage-scheduler/internal/sorted_set" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <pattern value="^\QTestSortedSet\E$" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build edge-storage-scheduler/cmd" />
+        <item itemvalue="Go Test.TestEdgeNode_LoadEdgeNodeInfo in edge-storage-scheduler/internal/api" />
+        <item itemvalue="Go Test.TestEdgeSet_RefreshSet in edge-storage-scheduler/internal/api" />
+        <item itemvalue="Go Test.TestSortedSet in edge-storage-scheduler/internal/sorted_set" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SshConsoleOptionsProvider">
+    <option name="myEncoding" value="UTF-8" />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat(global): add edge node metric" />
+    <MESSAGE value="tmp" />
+    <MESSAGE value="feat(global): add edge timer" />
+    <MESSAGE value="feat(api): add jobname" />
+    <MESSAGE value="feat(api): add err" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(api): add err" />
+  </component>
+  <component name="VgoProject">
+    <integration-enabled>true</integration-enabled>
+  </component>
+  <component name="WindowStateProjectService">
+    <state width="1398" height="248" key="GridCell.Tab.0.bottom" timestamp="1634882681701">
+      <screen x="0" y="25" width="1440" height="790" />
+    </state>
+    <state width="1398" height="248" key="GridCell.Tab.0.bottom/0.0.1440.900@0.0.1440.900" timestamp="1634637787925" />
+    <state width="1398" height="248" key="GridCell.Tab.0.bottom/0.25.1440.794@0.25.1440.794" timestamp="1634627872296" />
+    <state width="1398" height="248" key="GridCell.Tab.0.bottom/1440.0.1920.1080/0.0.1440.900@0.0.1440.900" timestamp="1634379937902" />
+    <state width="1398" height="248" key="GridCell.Tab.0.bottom/1440.25.1920.1055/0.25.1440.790@0.25.1440.790" timestamp="1634882681701" />
+    <state width="1398" height="248" key="GridCell.Tab.0.bottom/1440.25.1920.1055/0.25.1440.799@0.25.1440.799" timestamp="1634384670987" />
+    <state width="1398" height="248" key="GridCell.Tab.0.center" timestamp="1634882681698">
+      <screen x="0" y="25" width="1440" height="790" />
+    </state>
+    <state width="1398" height="248" key="GridCell.Tab.0.center/0.0.1440.900@0.0.1440.900" timestamp="1634637787921" />
+    <state width="1398" height="248" key="GridCell.Tab.0.center/0.25.1440.794@0.25.1440.794" timestamp="1634627872292" />
+    <state width="1398" height="248" key="GridCell.Tab.0.center/1440.0.1920.1080/0.0.1440.900@0.0.1440.900" timestamp="1634379937895" />
+    <state width="1398" height="248" key="GridCell.Tab.0.center/1440.25.1920.1055/0.25.1440.790@0.25.1440.790" timestamp="1634882681698" />
+    <state width="1398" height="248" key="GridCell.Tab.0.center/1440.25.1920.1055/0.25.1440.799@0.25.1440.799" timestamp="1634384670985" />
+    <state width="1398" height="248" key="GridCell.Tab.0.left" timestamp="1634882681697">
+      <screen x="0" y="25" width="1440" height="790" />
+    </state>
+    <state width="1398" height="248" key="GridCell.Tab.0.left/0.0.1440.900@0.0.1440.900" timestamp="1634637787920" />
+    <state width="1398" height="248" key="GridCell.Tab.0.left/0.25.1440.794@0.25.1440.794" timestamp="1634627872289" />
+    <state width="1398" height="248" key="GridCell.Tab.0.left/1440.0.1920.1080/0.0.1440.900@0.0.1440.900" timestamp="1634379937885" />
+    <state width="1398" height="248" key="GridCell.Tab.0.left/1440.25.1920.1055/0.25.1440.790@0.25.1440.790" timestamp="1634882681697" />
+    <state width="1398" height="248" key="GridCell.Tab.0.left/1440.25.1920.1055/0.25.1440.799@0.25.1440.799" timestamp="1634384670983" />
+    <state width="1398" height="248" key="GridCell.Tab.0.right" timestamp="1634882681700">
+      <screen x="0" y="25" width="1440" height="790" />
+    </state>
+    <state width="1398" height="248" key="GridCell.Tab.0.right/0.0.1440.900@0.0.1440.900" timestamp="1634637787924" />
+    <state width="1398" height="248" key="GridCell.Tab.0.right/0.25.1440.794@0.25.1440.794" timestamp="1634627872294" />
+    <state width="1398" height="248" key="GridCell.Tab.0.right/1440.0.1920.1080/0.0.1440.900@0.0.1440.900" timestamp="1634379937897" />
+    <state width="1398" height="248" key="GridCell.Tab.0.right/1440.25.1920.1055/0.25.1440.790@0.25.1440.790" timestamp="1634882681700" />
+    <state width="1398" height="248" key="GridCell.Tab.0.right/1440.25.1920.1055/0.25.1440.799@0.25.1440.799" timestamp="1634384670986" />
+    <state width="1398" height="304" key="GridCell.Tab.1.bottom" timestamp="1634882674380">
+      <screen x="0" y="25" width="1440" height="790" />
+    </state>
+    <state width="1398" height="304" key="GridCell.Tab.1.bottom/0.0.1440.900@0.0.1440.900" timestamp="1634636260516" />
+    <state width="1398" height="304" key="GridCell.Tab.1.bottom/1440.0.1920.1080/0.0.1440.900@0.0.1440.900" timestamp="1634306720695" />
+    <state width="1398" height="304" key="GridCell.Tab.1.bottom/1440.25.1920.1055/0.25.1440.790@0.25.1440.790" timestamp="1634882674380" />
+    <state width="1398" height="304" key="GridCell.Tab.1.center" timestamp="1634882674377">
+      <screen x="0" y="25" width="1440" height="790" />
+    </state>
+    <state width="1398" height="304" key="GridCell.Tab.1.center/0.0.1440.900@0.0.1440.900" timestamp="1634636260514" />
+    <state width="1398" height="304" key="GridCell.Tab.1.center/1440.0.1920.1080/0.0.1440.900@0.0.1440.900" timestamp="1634306720691" />
+    <state width="1398" height="304" key="GridCell.Tab.1.center/1440.25.1920.1055/0.25.1440.790@0.25.1440.790" timestamp="1634882674377" />
+    <state width="1398" height="304" key="GridCell.Tab.1.left" timestamp="1634882674376">
+      <screen x="0" y="25" width="1440" height="790" />
+    </state>
+    <state width="1398" height="304" key="GridCell.Tab.1.left/0.0.1440.900@0.0.1440.900" timestamp="1634636260513" />
+    <state width="1398" height="304" key="GridCell.Tab.1.left/1440.0.1920.1080/0.0.1440.900@0.0.1440.900" timestamp="1634306720689" />
+    <state width="1398" height="304" key="GridCell.Tab.1.left/1440.25.1920.1055/0.25.1440.790@0.25.1440.790" timestamp="1634882674376" />
+    <state width="1398" height="304" key="GridCell.Tab.1.right" timestamp="1634882674379">
+      <screen x="0" y="25" width="1440" height="790" />
+    </state>
+    <state width="1398" height="304" key="GridCell.Tab.1.right/0.0.1440.900@0.0.1440.900" timestamp="1634636260515" />
+    <state width="1398" height="304" key="GridCell.Tab.1.right/1440.0.1920.1080/0.0.1440.900@0.0.1440.900" timestamp="1634306720693" />
+    <state width="1398" height="304" key="GridCell.Tab.1.right/1440.25.1920.1055/0.25.1440.790@0.25.1440.790" timestamp="1634882674379" />
+    <state x="229" y="86" key="SettingsEditor" timestamp="1634634192349">
+      <screen x="0" y="0" width="1440" height="900" />
+    </state>
+    <state x="229" y="86" key="SettingsEditor/0.0.1440.900@0.0.1440.900" timestamp="1634634192349" />
+    <state x="320" y="187" key="Vcs.Push.Dialog.v2" timestamp="1634368307489">
+      <screen x="0" y="0" width="1440" height="900" />
+    </state>
+    <state x="320" y="187" key="Vcs.Push.Dialog.v2/1440.0.1920.1080/0.0.1440.900@0.0.1440.900" timestamp="1634368307489" />
+    <state x="1638" y="25" width="1137" height="909" key="dock-window-1" timestamp="1634291048182">
+      <screen x="1440" y="0" width="1920" height="1080" />
+    </state>
+    <state x="1638" y="25" width="1137" height="909" key="dock-window-1/1440.0.1920.1080/0.0.1440.900@0.0.1440.900" timestamp="1634291048182" />
+    <state x="1440" y="0" width="1073" height="909" key="dock-window-2" timestamp="1634312147394">
+      <screen x="1440" y="0" width="1920" height="1080" />
+    </state>
+    <state x="1440" y="0" width="1073" height="909" key="dock-window-2/1440.0.1920.1080/0.0.1440.900@0.0.1440.900" timestamp="1634312147394" />
+    <state x="480" y="343" key="git4idea.remote.GitConfigureRemotesDialog" timestamp="1634236678696">
+      <screen x="0" y="0" width="1440" height="900" />
+    </state>
+    <state x="480" y="343" key="git4idea.remote.GitConfigureRemotesDialog/1440.0.1920.1080/0.0.1440.900@0.0.1440.900" timestamp="1634236678696" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/internal/utils/redis/redis.go</url>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/internal/api/edge_set.go</url>
+          <line>97</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/internal/api/edge_node.go</url>
+          <line>205</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

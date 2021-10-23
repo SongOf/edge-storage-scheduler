@@ -5,6 +5,7 @@ import (
 	"edge-storage-scheduler/internal/contains"
 	"edge-storage-scheduler/internal/globals"
 	"edge-storage-scheduler/internal/timer"
+	"encoding/json"
 	"github.com/go-redis/redis/v8"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
@@ -94,14 +95,18 @@ func (es *EdgeSet) Run() {
 
 	//解析在线纠删集
 	for _, set := range es.SetDiskOnlineTotal {
-		setName := set.Metric.String()
+		setNameBytes, err := json.Marshal(set.Metric)
+		if err != nil {
+			klog.Error("map to json fail for ", set.Metric.String())
+		}
+		setName := string(setNameBytes)
 		_, exists := es.SetOnline[setName]
 		if !exists {
 			//新增纠删集
 			//为每个纠删集添加一个定时任务
 			es.SetOnline[setName] = member
+			es.EdgeNodesOfSet[setName] = NewEdgeNode(string(set.Metric["job"]))
 			go func() {
-				es.EdgeNodesOfSet[setName] = NewEdgeNode(setName)
 				edgeNodeTimer := timer.Timer{
 					Function: es.EdgeNodesOfSet[setName].Run,
 					Duration: 60 * 1 * time.Second,
@@ -119,13 +124,13 @@ func (es *EdgeSet) Run() {
 	ctx, cacel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cacel()
 	for key, value := range es.SetScore {
-		//globals.RedisClient.GetClient().ZIncrBy(ctx, contains.EDGE_SET_REDIS_KEY, value, key)
-		err := globals.RedisClient.GetClient().ZAdd(ctx, contains.EDGE_SET_REDIS_KEY, &redis.Z{
+		//err := globals.RedisClient.GetClient().ZIncrBy(ctx, contains.EDGE_SET_REDIS_KEY, value, key)
+		cmd := globals.RedisClient.GetClient().ZAdd(ctx, contains.EDGE_SET_REDIS_KEY, &redis.Z{
 			Score:  value,
 			Member: key,
 		})
-		if err != nil {
-			klog.Error("redis zset operation fail", err)
+		if cmd != nil {
+			klog.Info("redis zset operation ", cmd)
 		}
 	}
 }

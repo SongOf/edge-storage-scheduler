@@ -8,4 +8,5 @@ type PrometheusConf struct {
 type RedisConf struct {
 	Address  string `yaml:"address,omitempty"`
 	Password string `yaml:"password,omitempty"`
+	Db       int    `yaml:"db,omitempty"`
 }

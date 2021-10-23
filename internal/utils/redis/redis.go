@@ -14,12 +14,14 @@ type RedisCache struct {
 type RedisOption struct {
 	Address  string
 	Password string
+	Db       int
 }
 
 func NewRedisCache(option RedisOption) *RedisCache {
 	opt := redis.Options{
 		Addr:     option.Address,
 		Password: option.Password,
+		DB:       option.Db,
 	}
 	return &RedisCache{rdb: redis.NewClient(&opt)}
 }

@@ -3,7 +3,6 @@ module edge-storage-scheduler
 go 1.14
 
 require (
-	github.com/buraksezer/sorted v0.0.0-20190925064702-aafacfa34653
 	github.com/go-redis/redis/v8 v8.1.3
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/common v0.26.0

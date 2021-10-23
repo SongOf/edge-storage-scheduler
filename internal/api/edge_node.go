@@ -4,6 +4,7 @@ import (
 	"context"
 	"edge-storage-scheduler/internal/contains"
 	"edge-storage-scheduler/internal/globals"
+	"encoding/json"
 	"fmt"
 	"github.com/go-redis/redis/v8"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
@@ -203,7 +204,11 @@ func (en *EdgeNode) Run() {
 
 	//解析在线节点
 	for _, node := range en.NodeCpuIdle {
-		nodeName := node.Metric.String()
+		nodeNameBytes, err := json.Marshal(node.Metric)
+		if err != nil {
+			klog.Error("map to json fail for ", node.Metric.String())
+		}
+		nodeName := string(nodeNameBytes)
 		_, exists := en.NodeOnline[nodeName]
 		if !exists {
 			//新增节点
@@ -218,12 +223,12 @@ func (en *EdgeNode) Run() {
 	defer cacel()
 	for key, value := range en.NodeScore {
 		//globals.RedisClient.GetClient().ZIncrBy(ctx, en.EdgeSetName, value, key)
-		err := globals.RedisClient.GetClient().ZAdd(ctx, en.EdgeSetName, &redis.Z{
+		cmd := globals.RedisClient.GetClient().ZAdd(ctx, en.EdgeSetName, &redis.Z{
 			Score:  value,
 			Member: key,
 		})
-		if err != nil {
-			klog.Error("redis zset operation fail", err)
+		if cmd != nil {
+			klog.Info("redis zset operation ", cmd)
 		}
 	}
 }

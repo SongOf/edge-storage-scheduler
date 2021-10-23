@@ -68,6 +68,7 @@ func init() {
 	redisClient := redis.NewRedisCache(redis.RedisOption{
 		Address:  redisConf.Address,
 		Password: redisConf.Password,
+		Db:       redisConf.Db,
 	})
 	globals.RedisClient = redisClient
 }
